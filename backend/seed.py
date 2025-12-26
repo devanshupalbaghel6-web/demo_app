@@ -1,14 +1,11 @@
 import asyncio
-from database import AsyncSessionLocal, engine
-from models import Base, Product, User, Order, OrderItem
+from core.database import AsyncSessionLocal, engine
+from models.base import Base
+from models.product import Product
+from models.user import User
+from models.order import Order, OrderItem
 from sqlalchemy import select
-from passlib.context import CryptContext
-
-# Password hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-def get_password_hash(password):
-    return pwd_context.hash(password)
+from utils.security import get_password_hash
 
 async def seed_data():
     # Create tables if they don't exist (just in case)

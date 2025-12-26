@@ -18,8 +18,12 @@ sys.path.append(os.getcwd())
 load_dotenv()
 
 # Import Base and DATABASE_URL
-from database import DATABASE_URL
-from models import Base
+from core.config import settings
+from models.base import Base
+# Import all models to ensure they are registered with Base.metadata
+from models.user import User
+from models.product import Product
+from models.order import Order
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -32,7 +36,7 @@ if config.config_file_name is not None:
 
 # Set the database URL in the config
 # We need to ensure it's set, overriding whatever is in alembic.ini
-config.set_main_option("sqlalchemy.url", DATABASE_URL)
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
