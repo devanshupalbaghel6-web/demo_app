@@ -1,6 +1,9 @@
 import React from 'react';
+import { useCart } from '../context/CartContext';
 
 const ProductCard = ({ product }) => {
+  const { addToCart } = useCart();
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col h-full hover:shadow-lg transition-shadow duration-300">
       {product.image_url && (
@@ -21,7 +24,10 @@ const ProductCard = ({ product }) => {
           <div className="flex justify-between items-center mb-3">
             <span className="text-xl font-bold text-blue-600">${product.price.toFixed(2)}</span>
           </div>
-          <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-200 flex items-center justify-center gap-2">
+          <button 
+            onClick={() => addToCart(product)}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-200 flex items-center justify-center gap-2"
+          >
             Add to Cart
           </button>
         </div>

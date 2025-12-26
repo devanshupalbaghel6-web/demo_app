@@ -6,6 +6,9 @@ load_dotenv()
 
 class Settings:
     DATABASE_URL = os.getenv("DATABASE_URL")
+    SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-keep-it-secret")
+    ALGORITHM = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
     def __init__(self):
         if not self.DATABASE_URL:
