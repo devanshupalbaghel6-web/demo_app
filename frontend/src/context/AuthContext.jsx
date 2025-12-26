@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import api from '../services/api';
+import { userService } from '../services/user';
 
 const AuthContext = createContext();
 
@@ -9,15 +10,26 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (token) {
-      // In a real app, you'd validate the token with the backend here
-      // For now, we'll just assume it's valid and decode the email if possible
-      // or just set a dummy user state if we don't have a /me endpoint yet
-      // Let's try to fetch user details if we had an endpoint, but we don't have /me yet.
-      // So we will just persist the login state.
-      setUser({ email: 'user@example.com' }); // Placeholder
-    }
-    setLoading(false);
+    const fetchUser = async () => {
+      if (token) {
+        // Set the token in the default headers for all requests
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        try {
+          const userData = await userService.getCurrentUser();
+          setUser(userData);
+        } catch (error) {
+          console.error("Failed to fetch user", error);
+          // If token is invalid, logout
+          logout();
+        }
+      } else {
+        delete api.defaults.headers.common['Authorization'];
+        setUser(null);
+      }
+      setLoading(false);
+    };
+
+    fetchUser();
   }, [token]);
 
   const login = async (email, password) => {
@@ -32,7 +44,7 @@ export const AuthProvider = ({ children }) => {
       const { access_token } = response.data;
       setToken(access_token);
       localStorage.setItem('token', access_token);
-      setUser({ email });
+      // User will be fetched by the useEffect
       return true;
     } catch (error) {
       console.error("Login failed", error);

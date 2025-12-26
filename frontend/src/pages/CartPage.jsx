@@ -44,10 +44,9 @@ const CartPage = () => {
       // For this demo, I'll assume the user has an ID.
       // If the AuthContext doesn't have it, we might need to fetch it.
       
-      // Temporary hack: if user.id is missing, use 1 (admin) or 2 (user)
-      const userId = user.id || 2; 
-
-      await orderService.createOrder(orderData, userId);
+      // The backend now uses the current user from the token
+      await orderService.createOrder(orderData);
+      
       clearCart();
       alert('Order placed successfully!');
       navigate('/orders');

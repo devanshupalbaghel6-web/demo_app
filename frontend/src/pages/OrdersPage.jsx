@@ -9,11 +9,9 @@ const OrdersPage = () => {
 
   useEffect(() => {
     const fetchOrders = async () => {
-      if (user) {
+      if (user && user.id) {
         try {
-          // Again, assuming we have user.id or using a fallback
-          const userId = user.id || 2; 
-          const data = await orderService.getUserOrders(userId);
+          const data = await orderService.getUserOrders(user.id);
           setOrders(data);
         } catch (error) {
           console.error("Failed to fetch orders", error);

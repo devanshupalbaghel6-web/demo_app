@@ -30,11 +30,7 @@ const Layout = ({ children }) => {
               {user ? (
                 <>
                   <li><Link to="/orders" className="text-gray-600 hover:text-blue-600 font-medium">Orders</Link></li>
-                  <li>
-                    <button onClick={logout} className="text-gray-600 hover:text-blue-600 font-medium">
-                      Logout
-                    </button>
-                  </li>
+                  <li><Link to="/profile" className="text-gray-600 hover:text-blue-600 font-medium">Profile</Link></li>
                 </>
               ) : (
                 <>

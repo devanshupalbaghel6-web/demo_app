@@ -4,8 +4,9 @@ from sqlalchemy.orm import selectinload
 from models.order import Order, OrderItem
 from models.product import Product
 from schemas.order import OrderCreate
+from uuid import UUID
 
-async def create_order(db: AsyncSession, order: OrderCreate, user_id: int):
+async def create_order(db: AsyncSession, order: OrderCreate, user_id: UUID):
     db_order = Order(user_id=user_id, status="pending")
     db.add(db_order)
     await db.flush()
@@ -40,7 +41,7 @@ async def get_orders(db: AsyncSession, skip: int = 0, limit: int = 100):
     )
     return result.scalars().all()
 
-async def get_user_orders(db: AsyncSession, user_id: int):
+async def get_user_orders(db: AsyncSession, user_id: UUID):
     result = await db.execute(
         select(Order)
         .options(selectinload(Order.items))

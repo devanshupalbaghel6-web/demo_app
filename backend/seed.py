@@ -8,8 +8,9 @@ from sqlalchemy import select
 from utils.security import get_password_hash
 
 async def seed_data():
-    # Create tables if they don't exist (just in case)
+    # Drop all tables to ensure a clean slate for UUID changes
     async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 
     async with AsyncSessionLocal() as session:
@@ -95,6 +96,20 @@ async def seed_data():
                 status="completed"
             )
             session.add(order)
+            await session.flush() # Get order ID
+
+            # Add items to order
+            if products:
+                order_item = OrderItem(
+                    order_id=order.id,
+                    product_id=products[0].id,
+                    quantity=1,
+                    price_at_purchase=products[0].price
+                )
+                session.add(order_item)
+                await session.commit()
+                print("Orders seeded successfully!")
+
             await session.flush()
             
             # Add items to the order
