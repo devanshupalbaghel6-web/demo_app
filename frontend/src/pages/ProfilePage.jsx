@@ -1,21 +1,40 @@
+/**
+ * ProfilePage Component
+ * 
+ * This component displays the user's profile information and order history.
+ * It fetches the user's orders from the backend and displays them in a list.
+ * It also allows the user to logout.
+ */
+
 import React, { useEffect, useState } from 'react';
+// Import auth context to access user information and logout function
 import { useAuth } from '../context/AuthContext';
+// Import order service to fetch user's orders
 import { orderService } from '../services/order';
 
 const ProfilePage = () => {
+  // Get user state and logout function from AuthContext
   const { user, logout } = useAuth();
+  // State to store the list of orders
   const [orders, setOrders] = useState([]);
+  // State to track loading status of orders
   const [loadingOrders, setLoadingOrders] = useState(true);
 
+  /**
+   * Effect to fetch the user's orders when the component mounts or user changes.
+   */
   useEffect(() => {
     const fetchOrders = async () => {
+      // Only fetch if user is logged in and has an ID
       if (user && user.id) {
         try {
+          // Fetch orders for the current user
           const data = await orderService.getUserOrders(user.id);
           setOrders(data);
         } catch (error) {
           console.error("Failed to fetch orders", error);
         } finally {
+          // Mark loading as complete regardless of success or failure
           setLoadingOrders(false);
         }
       }
@@ -24,12 +43,14 @@ const ProfilePage = () => {
     fetchOrders();
   }, [user]);
 
+  // If user is not logged in, show a message
   if (!user) {
     return <div className="text-center p-10">Please log in to view your profile.</div>;
   }
 
   return (
     <div className="max-w-4xl mx-auto p-6">
+      {/* User Profile Section */}
       <div className="bg-white shadow rounded-lg p-6 mb-8">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-3xl font-bold text-gray-800">My Profile</h1>
@@ -40,6 +61,8 @@ const ProfilePage = () => {
             Logout
           </button>
         </div>
+        
+        {/* User Details Grid */}
         <div className="border-t border-gray-200 pt-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -70,6 +93,7 @@ const ProfilePage = () => {
         </div>
       </div>
 
+      {/* Order History Section */}
       <h2 className="text-2xl font-bold mb-4 text-gray-800">Order History</h2>
       {loadingOrders ? (
         <div className="text-center py-4">Loading orders...</div>

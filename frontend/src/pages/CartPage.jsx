@@ -1,22 +1,46 @@
+/**
+ * CartPage Component
+ * 
+ * This component displays the contents of the user's shopping cart.
+ * It allows users to view items, update quantities, remove items, and proceed to checkout.
+ */
+
 import React from 'react';
+// Import the cart context to access cart state and actions
 import { useCart } from '../context/CartContext';
+// Import the auth context to check if the user is logged in
 import { useAuth } from '../context/AuthContext';
+// Import useNavigate for programmatic navigation
 import { useNavigate } from 'react-router-dom';
+// Import the order service to submit the order
 import { orderService } from '../services/order';
 
 const CartPage = () => {
+  // Destructure cart state and actions from the CartContext
   const { cart, removeFromCart, updateQuantity, clearCart, total } = useCart();
+  // Get the current user from AuthContext
   const { user } = useAuth();
+  // Initialize the navigation hook
   const navigate = useNavigate();
 
+  /**
+   * Handles the checkout process.
+   * 
+   * 1. Checks if the user is logged in. If not, redirects to login.
+   * 2. Prepares the order payload from the cart items.
+   * 3. Calls the backend API to create the order.
+   * 4. Clears the cart upon success and redirects to the orders page.
+   */
   const handleCheckout = async () => {
+    // If user is not authenticated, redirect to login page
     if (!user) {
       navigate('/login');
       return;
     }
 
     try {
-      // Prepare order data
+      // Prepare order data in the format expected by the backend
+      // We map the cart items to an array of objects containing product_id and quantity
       const orderData = {
         items: cart.map(item => ({
           product_id: item.id,
@@ -24,38 +48,27 @@ const CartPage = () => {
         }))
       };
 
-      // We need the user ID. In a real app, the backend would get it from the token.
-      // Since our backend expects user_id in the query param (based on previous code),
-      // we need to fetch the user ID first or store it in AuthContext.
-      // For now, let's assume we can get it or the backend is updated to use the token.
-      // Wait, the backend `create_order` takes `user_id` as a query param.
-      // Ideally, it should take it from the current user dependency.
-      // I'll assume for now we might fail here if we don't have the ID.
-      // Let's try to pass a dummy ID or fix the backend to use `current_user`.
-      
-      // FIX: The backend `create_order` endpoint currently requires `user_id` as a query param.
-      // This is not ideal for security. I should have fixed that in the backend refactor.
-      // But for now, let's assume the user object in AuthContext has an ID.
-      // If not, we might need to fetch "me" first.
-      
-      // Let's assume user.id is available. If not, we'll use a hardcoded one for demo if needed,
-      // but better to fix the backend.
-      
-      // For this demo, I'll assume the user has an ID.
-      // If the AuthContext doesn't have it, we might need to fetch it.
-      
-      // The backend now uses the current user from the token
+      // Call the createOrder service method.
+      // The backend now extracts the user ID from the authentication token,
+      // so we don't need to pass it explicitly.
       await orderService.createOrder(orderData);
       
+      // Clear the local cart state
       clearCart();
+      
+      // Notify the user of success
       alert('Order placed successfully!');
+      
+      // Redirect to the orders history page
       navigate('/orders');
     } catch (error) {
+      // Log error and notify user if checkout fails
       console.error("Checkout failed", error);
       alert('Checkout failed. Please try again.');
     }
   };
 
+  // Render empty cart state if there are no items
   if (cart.length === 0) {
     return (
       <div className="text-center py-10">
